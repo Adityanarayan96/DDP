@@ -22,7 +22,7 @@ from scipy.linalg import block_diag
 Gamma = 0 #Parameter to deviate orthogonal vectors slightly
 #input_vectors = 10*(np.random.rand(input_vector_length,training_points) - 0.5) #Generate required length of input vectors
 #input_vectors = orth(input_vectors) + Gamma*np.random.randn(input_vector_length,training_points) #Orthogonalise them and add some random noise
-input_vectors = np.array([[10,0],[10,0.000000005]]) #If you want to initalize your own training set
+input_vectors = np.array([[10,0],[10,0.05]]) #If you want to initalize your own training set
 #W = np.array([[0.20774353,1.0305219],[-1.2163291,-0.1880631]])
 #orthonormal_vectors = np.matmul(W,orthonormal_vectors)
 #print(input_vectors)
@@ -35,12 +35,12 @@ hidden_layer_nodes = 2
 output_vector_length = 2
 learning_rate = 1e-2
 training_points = input_vector_length
-#iteration = tf.Variable(1.1,name = 'iteration', dtype = "float64") #Used for the weight decay upgrade
+iteration = tf.Variable(1.1,name = 'iteration', dtype = "float64") #Used for the weight decay upgrade
 #print(iteration)
 #updater = tf.constant(1)
 #iteration = tf.add(iteration,updater) 
-#assign_op = tf.assign(iteration,iteration + 1) # This is for incrementing it every time
-alpha = tf.constant(1,dtype = 'float64')
+assign_op = tf.assign(iteration,iteration + 1) # This is for incrementing it every time
+alpha = tf.constant(0.9999,dtype = 'float64')
 
 # In[3]:
 
@@ -83,13 +83,13 @@ Output_layer = tf.matmul(hidden_layer_1,W2)
 
 #Create Loss function
 mse_real = tf.reduce_mean(tf.square(Output_layer - Output_vectors))
-#mse = tf.reduce_mean(tf.square(Output_layer - Output_vectors)) + tf.multiply(alpha,tf.matmul(tf.linalg.matmul(Regularization_2,tf.transpose(W1)),tf.linalg.matmul(W1,Regularization_1)))
+mse = tf.multiply(1-(alpha**iteration),tf.reduce_mean(tf.square(Output_layer - Output_vectors))) + tf.multiply(alpha**iteration,tf.matmul(tf.linalg.matmul(Regularization_2,tf.transpose(W1)),tf.linalg.matmul(W1,Regularization_1)))
 
 # In[8]:
 
 
 #The Optimizer
-optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(mse)
+optimizer = tf.train.AdamOptimizer(learning_rate).minimize(mse_real)
 #grads_and_vars = optimizer.compute_gradients(mse)
 #assign_op_w1 = tf.assign(W1,W1 + (alpha**iteration)*tf.random_normal([input_vector_length,hidden_layer_nodes],stddev=0.1))
 #optimizer_real = optimizer.apply_gradients(grads_and_vars)
@@ -124,7 +124,7 @@ def angle(v1, v2):
 
 
 #Ax = y, We need to invert A => x_train is actually the output of the NN while y_train is the input
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 A = 10*np.random.randn(input_vector_length,input_vector_length) #Generate a random matrix to invert
 x_train = np.matmul(np.linalg.inv(A),input_vectors) # use the generated A and input_vectors to generate x (See Ax = y)
 #x_validate = np.random.randn(output_vector_length) # Generate a dingle vector for validation
@@ -183,13 +183,13 @@ with tf.Session() as sess: #Start the session
 #                     print "gradient's shape:", g.shape
 #                     print g
             #print(w1,w2)
-            #sess.run(assign_op)
+            sess.run(assign_op)
             #sess.run(assign_op_w1)
             #print(iteration.value())
             #W1 = tf.add(W1,tf.multiply(tf.random_normal([input_vector_length,hidden_layer_nodes],stddev=0.1),tf.math.pow(alpha,tf.constant(i,'float32'))))
             
-            print(sess.run(mse_real, feed_dict={Input_layer:y_validate , Output_vectors: x_validate}))
-        print("Epoch:", (epoch + 1), "cost =", "{:.3f}".format(average_loss))
+            print(sess.run(mse, feed_dict={Input_layer:y_validate , Output_vectors: x_validate}))
+        print("Epoch:", (epoch + 1), "cost =", average_loss)
 
 
 
