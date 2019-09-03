@@ -141,7 +141,7 @@ init_op = tf.global_variables_initializer()
 #Adding Noise to the input vectors here
 coded_train = np.zeros([len(MessageWordsArray),input_vector_length])
 for i in range(0,len(MessageWordsArray)):
-    coded_train[i,:] = RepetitionCodes(MessageWordsArray[i,:],repitions) + AddNoise(0.1,input_vector_length)
+    coded_train[i,:] = RepetitionCodes(MessageWordsArray[i,:],repitions) + AddNoise(0.3,input_vector_length)
 coded_validation = np.zeros([len(MessageWordsArray),input_vector_length])
 for i in range(0,len(MessageWordsArray)):
     coded_validation[i,:] = RepetitionCodes(MessageWordsArray[i,:],repitions) + AddNoise(0.5,input_vector_length)
@@ -166,7 +166,7 @@ with tf.Session() as sess: #Start the session
 	ax = fig.add_subplot(111)
 	fig.show()
     #print(total_batch)
-	for j in range(10):
+	for j in range(100):
 		sess.run(tf.global_variables_initializer())
 		for epoch in range(epochs):
 			average_loss = 0 #initialize average_loss as zero
@@ -195,7 +195,7 @@ with tf.Session() as sess: #Start the session
 		y.append(mse_test)
 	ax.plot(x,y,color = 'b')
 	fig.canvas.draw
-	plt.savefig('NotTooMuchNoiseTrainErrorData')
+	plt.savefig('NotTooMuchNoiseTrainErrorData_03')
 
 
 # In[22]:
